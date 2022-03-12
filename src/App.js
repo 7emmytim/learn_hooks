@@ -1,46 +1,42 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
+// use cases
+// 1. Handling a slow function
+// 2. Idea of referencial equality, only update when an obj or arr actually changes
+ 
 const App = () => {
+  const [number, setNumber] = useState(0)
+  const [dark, setDark] = useState(false)
+  // useMemo (memoization) saves value in memory
+  // it should not be overused not to cause memory overuse
+  const doubleNumber = useMemo(() => {
+    return slowFunction(number)
+  }, [number])
 
-  const [resourceType, setResourceType] = useState('posts')
-  const [items, setItems] = useState([])
-  const [windowSize, setWindowSize] = useState(window.innerWidth)
-
-  useEffect(() => {
-    fetch(`https://jsonplaceholder.typicode.com/${resourceType}`)
-      .then(response => response.json())
-      .then(json => setItems(json))
-
-      return () => console.log('cleaned up ' + resourceType)
-  }, [resourceType])
-
-  const handleResize = () => setWindowSize(window.innerWidth)
-
-  useEffect(() => {
-    window.addEventListener('resize', handleResize)
-
-    return () => {
-      window.removeEventListener('resize', handleResize)
-      // console.log('cleanup')
+  const themeStyles = useMemo(() => {
+    return {
+      backgroundColor: dark ? 'black' : 'white',
+      color: dark ? 'white' : 'black'
     }
-  }, [])
+  }, [dark])
+
+  useEffect(() => {
+    console.log('Theme Changed')
+  }, [themeStyles])
 
   return (
     <>
-      <div>
-        <button onClick={() => setResourceType('posts')}>Posts</button>
-        <button onClick={() => setResourceType('users')}>Users</button>
-        <button onClick={() => setResourceType('comments')}>Comments</button>
-      </div>
-      <h1>{windowSize}</h1>
-      <h1>{resourceType}</h1>
-      {
-        items?.map(item => {
-          return <pre key={item.id}>{JSON.stringify(item)}</pre>
-        })
-      }
+      <input type={'number'} value={number} onChange={e => setNumber(parseInt(e.target.value))} />
+      <button onClick={() => setDark(prev => !prev)}>Change Theme</button>
+      <div style={themeStyles}>{doubleNumber}</div>
     </>
   )
 }
 
 export default App
+
+function slowFunction(num) {
+  console.log('Calling slow function')
+  for (let i = 0; i <= 1000000000; i++) { }
+  return num * 2
+}
