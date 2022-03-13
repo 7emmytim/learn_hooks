@@ -1,8 +1,12 @@
+import FunctionContextComponent from './FunctionContextComponent'
+import { ThemeProvider } from './ThemeContext'
+
 const App = () => {
+
   return (
-    <div>
-      Hello World
-    </div>
+    <ThemeProvider>
+      <FunctionContextComponent />
+    </ThemeProvider>
   )
 }
 
